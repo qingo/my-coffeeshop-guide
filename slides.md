@@ -105,12 +105,88 @@ service Echo { // gRPC支持四种通讯方式
 ```
 ---
 
-# ptotobuf使用及生态
+# Server Adopter
+### 使用protobuf对server规范进行约束
 
-
-
+1. 安装**protobuf** - protobuf支持插件，所以后来在protobuf基础上可以走很多扩展，插件的变多，生成代码命令会变得复杂，如
+```shell
+protoc -I=proto \
+   --go_out=proto --go_opt=paths=source_relative \
+   --go-grpc_out=proto --go-grpc_opt=paths=source_relative \
+   --grpc-gateway_out=proto --grpc-gateway_opt=paths=source_relative \
+   helloworld/hello_world.proto
+```
+2. 在protobuf文件中可以导入一些公用的基础protobuf文件，如
+```proto
+import "google/api/annotations.proto";
+```
+3. 安装[**buf**](buf.build), 帮助管理protobuf插件和导入的公共protobuf文件，在proto目录下执行`buf mod init` 会生成 buf.yaml文件如下添加deps，并执行 `buf build`,会生成一个 `buf.lock`
+```yaml
+version: v1
+deps:
+  - buf.build/googleapis/googleapis
+  - buf.build/grpc-ecosystem/grpc-gateway
+```
 
 ---
+
+# 使用protobuf生成Server规范约束
+
+4. 在根部目录下添加`buf.work.yaml`和`buf.gen.yaml`,其中为proto的代码生成规则，
+```yaml
+version: v1
+plugins:
+  - remote: buf.build/library/plugins/go:v1.27.1-1
+    out: proto/gen
+    opt:
+      - paths=source_relative
+  - remote: buf.build/library/plugins/go-grpc:v1.1.0-2
+    out: proto/gen
+    opt:
+      - paths=source_relative
+  - remote: buf.build/grpc-ecosystem/plugins/grpc-gateway:v2.6.0-1
+    out: proto/gen
+    opt:
+      - paths=source_relative
+  - remote: buf.build/grpc-ecosystem/plugins/openapiv2:v2.6.0-1
+    out: third_party/openapiv2
+```
+
+
+   
+  
+---
+
+# 生成 gRPC Server和 Stub 代码
+
+5. 执行`buf generate`,生成gRPC Server和 Stub 代码，已经swagger.json
+
+<img src="/gen.png" class="w-[300px] float-right" />
+<br>
+- 使用`google.golang.org/protobuf` 作为gRPC框架
+```go
+import (
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+)
+```
+<br>
+
+- 使用`google.golang.org/protobuf` 编码库
+```go
+import (
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+)
+```
+---
+
+# Server Adopter
+
+---
+
+
 
 
 # 框架和驱动中的Golang技术
