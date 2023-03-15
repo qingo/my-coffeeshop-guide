@@ -30,7 +30,24 @@ css: unocss
 
 # 六边形架构
 <br>
-<img src="/6.png" class="h-[80%] mx-auto" />
+<img src="/6.png" class="h-[80%] float-right mr-20" />
+
+### 领域模型主要组成部分
+
+<br>
+
+- **实体/Entity**
+- **值对象/Object Value**
+- **聚合(根)/Aggregate(Root)**
+- **服务/Service**
+
+<br>
+<br>
+
+### 问题
+
+- 应用程序内领域服务描述不清楚
+- 适配器技术描述不清楚
 
 ---
 
@@ -47,23 +64,91 @@ css: unocss
 
 ---
 
+# 整洁架构的项目目录参考
+
+<br>
+
+```
+biz_module 业务模块
+├── 📁 app                    // 整个领域逻辑被打包成一个application，由外部集成程序调用，
+|   └── 📃 app.go              如果是单体架构，被聚合到整个程序的总入口；如果是微服务，会被单独打包成服务
+├── 📁 domain                 // 领域对象，包括实体、值对象、聚合等对象
+|   ├── 📃 entity.go               // 具体实体，用来描述全生命周期的业务对象
+|   ├── 📃 value_object.go         // 具体值对象，用来描述实体中的属性约束
+|   ├── 📃 aggregate_root.go       // 具体聚合根，用来描述有多个实体聚合成的复杂业务结构
+|   └── 📃 interfaces.go           // 存储库接口，用来描述实体的持久化设计
+├── 📁 events                 // 领域事件 
+├── 📁 infra                  // 基础设施适配器，用来连接基础设施中的功能
+|   |── 📁 mysql                  // 具体连接数据库实现
+|   └── 📁 grpc                   // 具体实现gRPC Server接口，或者gRPC Stub调用
+└── 📁 usecases               // 用例层
+    |── 📃 interface.go           // 依赖倒置
+    └── 📃 services.go            // 领域服务，具体用例的实现
+
+
+```
+
+---
+
+# 领域对象的由来
+复杂行为建模
+
+<br>
+<img src="/ddd-diagram.png" class="w-[600px] mx-auto mt--5" />
+
+
+---
+
+# 实体/Entity
+一个具有唯一标识的模型，使用值对象验证属性规则
+
+<div class="w-[50%] float-right ml-2">
+  <ul>
+    <li>全生命周期合法性，拒绝半成品实体</li>
+    <li>使用工厂方法或者抽象工厂创建实体</li>
+  </ul>
+  <br>
+  <img src="/entity-lifecycle.svg" class="w-[100%]" />
+</div>
+
+
+
+```go
+type User struct {
+  name    Username
+  email   Email
+  active  boolean
+}
+
+func NewUser (nameStr string, emailStr string, 
+active bool) *User, error{
+  name, err := NewUsername(nameStr)
+  if err!={
+    return nil, errors.Wrap(err, "User.NewUser")
+  }
+  email, err := NewEmail(emailStr)
+  if err!={
+    return nil, errors.Wrap(err, "User.NewUser")
+  }
+  return &User{
+    name:   name,
+    email:  email,
+    active: active
+  }
+}
+
+```
+
+---
+
 # 技术篇(框架和驱动层)
 
-<img src="/explicit-architecture-adopter.png" class="h-[80%] float-right" />
-
-<br>
-<br>
-<br>
-<br>
-
-- Server Adopter
-- ORM Adopter
-- MQ Adopter
+<img src="/explicit-architecture-adopter.png" class="h-[80%] mx-auto" />
 
 ---
 
 # Protocol Buffers 与 gRPC
-Server Adopter
+gRPC Server
 
 
 - **Protocol Buffers** 是一种接口定义语言（IDL，Interface Description Language）
@@ -105,7 +190,7 @@ service Echo { // gRPC支持四种通讯方式
 ```
 ---
 
-# Server Adopter
+# gRPC Server 开发
 ### 使用protobuf对server规范进行约束
 
 1. 安装**protobuf** - protobuf支持插件，所以后来在protobuf基础上可以走很多扩展，插件的变多，生成代码命令会变得复杂，如
@@ -182,51 +267,31 @@ import (
 ```
 ---
 
-# Server Adopter
+# gRPC Adopter
+在领域中适配gRPC Server的模块
+
+<br>
+
+1. **实现接口** - gen.XXXServiceServer接口，也就是protobu中，service定义生成的接口
+2. **注册服务**，使用 gen.RegisterXXXServiceServer 注册到grpcServer
+3. **调用领域功能**，通过调用usecases来实现对功能的调用
+4. **转化数据**， 将领域对象转化为gen中的DTO
+
+<br>
+<br>
+### 小贴士
+
+- 对于List数据转化时，可以使用 `github.com/samber/lo` 包，实现`Lodash-style`的转化，类似Java8中的stream
 
 ---
 
 
 
 
-# 框架和驱动中的Golang技术
+# ORM Adopter
+根据SQL语句，自动生成类型安全的数据库实现代码
 
-
-Use code snippets and get the highlighting directly![^1]
-
-```ts {all|2|1-6|9|all}
-interface User {
-  id: number
-  firstName: string
-  lastName: string
-  role: string
-}
-
-function updateUser(id: number, update: User) {
-  const user = getUser(id)
-  const newUser = { ...user, ...update }
-  saveUser(id, newUser)
-}
-```
-
-<arrow v-click="3" x1="400" y1="420" x2="230" y2="330" color="#564" width="3" arrowSize="1" />
-
-[^1]: [Learn More](https://sli.dev/guide/syntax.html#line-highlighting)
-
-<style>
-.footnotes-sep {
-  @apply mt-20 opacity-10;
-}
-.footnotes {
-  @apply text-sm opacity-75;
-}
-.footnote-backref {
-  display: none;
-}
-</style>
-
-
----
-
-
+- 安装`github.com/kyleconroy/sqlc`
+- 书写SQL语句
+- 生成代码，包括带有类型的DTO对象，接口和数据库实现代码
 
