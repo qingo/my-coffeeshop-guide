@@ -18,13 +18,36 @@ drawings:
 css: unocss
 ---
 
-# my-coffeeshop 项目指南
-参考自 go-coffeeshop
+# 领域驱动设计微服务落地方案
+go-coffeeshop 项目指南
 
-**设计** - 领域驱动设计（DDD）可落地的设计模式
+**设计** - 领域驱动设计可落地的设计模式
 <br>
 <br>
 **技术** - Go生态在设计中的使用
+
+---
+
+# go-coffee 项目简述
+
+<img src="/coffeeshop.svg" class="w-[78%] float-right mt-10" />
+<br>
+
+### Web服务
+- Web前端服务
+- gRPC网关
+- 商品服务/Product
+- 收银台服务/Counter
+- 咖啡师服务/Barista
+- 厨房服务/Kitchen
+
+<br>
+
+### 思考
+- 服务的划分规则
+- 服务使用的技术
+
+
 
 ---
 
@@ -91,7 +114,7 @@ biz_module 业务模块
 ---
 
 # 领域对象的由来
-复杂行为建模
+从 SMART UI 到领域驱动设计的复杂行为建模
 
 <br>
 <img src="/ddd-diagram.png" class="w-[600px] mx-auto mt--5" />
@@ -115,26 +138,26 @@ biz_module 业务模块
 
 ```go
 type User struct {
-  name    Username
-  email   Email
-  active  boolean
-}
-
+	name    Username
+	email   Email
+	active  boolean
+  }
+  
 func NewUser (nameStr string, emailStr string, 
 active bool) *User, error{
-  name, err := NewUsername(nameStr)
-  if err!={
-    return nil, errors.Wrap(err, "User.NewUser")
-  }
-  email, err := NewEmail(emailStr)
-  if err!={
-    return nil, errors.Wrap(err, "User.NewUser")
-  }
-  return &User{
-    name:   name,
-    email:  email,
-    active: active
-  }
+	name, err := NewUsername(nameStr)
+	if err!={
+		return nil, errors.Wrap(err, "User.NewUser")
+	}
+	email, err := NewEmail(emailStr)
+	if err!={
+		return nil, errors.Wrap(err, "User.NewUser")
+	}
+	return &User{
+		name:   name,
+		email:  email,
+		active: active
+	}
 }
 
 ```
@@ -279,6 +302,7 @@ import (
 
 <br>
 <br>
+
 ### 小贴士
 
 - 对于List数据转化时，可以使用 `github.com/samber/lo` 包，实现`Lodash-style`的转化，类似Java8中的stream
