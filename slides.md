@@ -166,7 +166,7 @@ active bool) *User, error{
 
 # 技术篇(框架和驱动层)
 
-<img src="/explicit-architecture-adopter.png" class="h-[80%] mx-auto" />
+<img src="/explicit-architecture-adapter.png" class="h-[80%] mx-auto" />
 
 ---
 
@@ -228,7 +228,7 @@ protoc -I=proto \
 ```proto
 import "google/api/annotations.proto";
 ```
-3. 安装[**buf**](buf.build), 帮助管理protobuf插件和导入的公共protobuf文件，在proto目录下执行`buf mod init` 会生成 buf.yaml文件如下添加deps，并执行 `buf build`,会生成一个 `buf.lock`
+3. 安装[buf](buf.build), 帮助管理protobuf插件和导入的公共protobuf文件，在proto目录下执行`buf mod init` 会生成 buf.yaml文件如下添加deps，并执行 `buf build`,会生成一个 `buf.lock`
 ```yaml
 version: v1
 deps:
@@ -290,7 +290,7 @@ import (
 ```
 ---
 
-# gRPC Adopter
+# gRPC adapter
 在领域中适配gRPC Server的模块
 
 <br>
@@ -312,7 +312,7 @@ import (
 
 
 
-# ORM Adopter
+# ORM adapter
 根据SQL语句，自动生成类型安全的数据库实现代码
 
 - 安装`github.com/kyleconroy/sqlc`
