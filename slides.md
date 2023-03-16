@@ -138,29 +138,76 @@ biz_module 业务模块
 
 ```go
 type User struct {
-	name    Username
-	email   Email
-	active  boolean
-  }
-  
-func NewUser (nameStr string, emailStr string, 
-active bool) *User, error{
-	name, err := NewUsername(nameStr)
-	if err!={
-		return nil, errors.Wrap(err, "User.NewUser")
-	}
-	email, err := NewEmail(emailStr)
-	if err!={
-		return nil, errors.Wrap(err, "User.NewUser")
-	}
-	return &User{
-		name:   name,
-		email:  email,
-		active: active
-	}
+    name    Username
+    email   Email
+    active  bool
+}
+
+func NewUser(nameStr string, emailStr string,
+	  active bool) (*User, error) {
+    name, err := NewUsername(nameStr)
+    if err!= nil {
+        return nil, errors.Wrap(err, "User.NewUser")
+    }
+    email, err := NewEmail(emailStr)
+    if err != nil {
+        return nil, errors.Wrap(err, "User.NewUser")
+    }
+    return &User{
+      email:  email,
+      active: active,
+    }, nil
 }
 
 ```
+
+---
+
+# 值对象/Object Value
+
+- 具有一定约束性的属性
+- 无唯一标识约束
+- 用来封装属性中的合法性约束条件
+  
+```go
+type Email string // 使用类型定义为值对象做限制
+
+func isEmailValid(e string) bool {
+    emailRegex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
+    return emailRegex.MatchString(e)
+}
+
+func NewEmail(str string) (Email, error) {
+    valid := isEmailValid(str)
+    if !valid {
+        return Email(""), errors.New("illegal mail")
+    }
+    return Email(str), nil
+}
+```
+
+---
+
+# 聚合(根)/Aggregate(Root)
+浅谈复杂业务场景微服务的拆分
+
+<img src="/uml.jpg" class="h-[400px] float-right mt--8" />
+
+### 传统建模中的对象关系
+<br>
+
+- 泛化/Generalization
+- 实现/Realization
+- **关联/Association**
+- **聚合/Aggregation**
+- **组合/Composition**
+- 依赖/Dependency
+
+<br>
+
+#### 泛化 = 实现 > 组合 > 聚合 > 关联 > 依赖
+
+强关联关系的对象使用聚合，避免不必要的分布式事务
 
 ---
 
