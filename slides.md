@@ -154,6 +154,7 @@ func NewUser(nameStr string, emailStr string,
         return nil, errors.Wrap(err, "User.NewUser")
     }
     return &User{
+      name:  name,
       email:  email,
       active: active,
     }, nil
