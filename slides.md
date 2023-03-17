@@ -113,12 +113,11 @@ biz_module 业务模块
 
 ---
 
-# 领域对象的由来
+# 模型驱动设计/Model-Driven Design
 从 SMART UI 到领域驱动设计的复杂行为建模
 
 <br>
 <img src="/ddd-diagram.png" class="w-[600px] mx-auto mt--5" />
-
 
 ---
 
@@ -209,6 +208,27 @@ func NewEmail(str string) (Email, error) {
 #### 泛化 = 实现 > 组合 > 聚合 > 关联 > 依赖
 
 强关联关系的对象使用聚合，避免不必要的分布式事务
+
+---
+
+# 数据驱动开发 VS 领域驱动设计
+Data-Driven Development vs Domain-Driven Design
+
+<br>
+
+- **为 Web Server 赋于业务能力** - 以数据模型驱动，以MVC架构落地的模式，是为 *Web Server* 赋予业务处理的能力
+- **以业务能力为核心，来添加表现形式** - 以领域驱动设计，以整洁架构落地的模式中，以适配器的方式为业务处理能力添加 Web Server、Command Line、Gui 等表现形式
+
+
+<br>
+<br>
+
+### 小贴士
+
+- 不管什么方式，什么架构，业务逻辑不会减少，取决于业务本身
+- 两种方式都需要完整的实现代码来实现业务逻辑中的所有用例
+- 实现代码的架构应该尽量符合业务架构，来对抗时间维度上的复杂度
+
 
 ---
 
